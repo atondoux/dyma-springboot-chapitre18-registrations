@@ -102,4 +102,20 @@ public class TournamentController {
     public void deleteTournament(@PathVariable("identifier") UUID identifier) {
         tournamentService.delete(identifier);
     }
+
+    @Operation(summary = "Register a player to a tournament", description = "Register a player to a tournament")
+
+    @PostMapping("{tournamentIdentifier}/players/{playerIdentifier}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Player is registred to the tournament",
+                    content = {@Content(mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "Player cannot be registred to the tournament.",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class))}),
+            @ApiResponse(responseCode = "403", description = "This user is not authorized to perform this action.")
+
+    })
+    public void register(@PathVariable("tournamentIdentifier") UUID tournamentIdentifier, @PathVariable("playerIdentifier") UUID playerIdentifier) {
+
+    }
 }
