@@ -5,6 +5,7 @@ import com.dyma.tennis.model.Error;
 import com.dyma.tennis.model.Tournament;
 import com.dyma.tennis.model.TournamentToCreate;
 import com.dyma.tennis.model.TournamentToUpdate;
+import com.dyma.tennis.service.RegistrationService;
 import com.dyma.tennis.service.TournamentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -27,6 +28,9 @@ public class TournamentController {
 
     @Autowired
     private TournamentService tournamentService;
+
+    @Autowired
+    private RegistrationService registrationService;
 
     @Operation(summary = "Finds tournaments", description = "Finds tournaments")
     @ApiResponses(value = {
@@ -101,5 +105,21 @@ public class TournamentController {
     @DeleteMapping("{identifier}")
     public void deleteTournament(@PathVariable("identifier") UUID identifier) {
         tournamentService.delete(identifier);
+    }
+
+    @Operation(summary = "Register a player to a tournament", description = "Register a player to a tournament")
+
+    @PostMapping("{tournamentIdentifier}/players/{playerIdentifier}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Player is registered to the tournament",
+                    content = {@Content(mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "Player cannot be registered to the tournament.",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Error.class))}),
+            @ApiResponse(responseCode = "403", description = "This user is not authorized to perform this action.")
+
+    })
+    public void register(@PathVariable("tournamentIdentifier") UUID tournamentIdentifier, @PathVariable("playerIdentifier") UUID playerToRegister) {
+        registrationService.register(tournamentIdentifier, playerToRegister);
     }
 }

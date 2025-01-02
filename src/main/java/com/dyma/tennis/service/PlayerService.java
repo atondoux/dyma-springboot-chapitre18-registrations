@@ -5,7 +5,6 @@ import com.dyma.tennis.data.PlayerRepository;
 import com.dyma.tennis.model.Player;
 import com.dyma.tennis.model.PlayerToCreate;
 import com.dyma.tennis.model.PlayerToUpdate;
-import com.dyma.tennis.model.Rank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +25,20 @@ public class PlayerService {
     @Autowired
     private final PlayerRepository playerRepository;
 
-    public PlayerService(PlayerRepository playerRepository) {
+    @Autowired
+    private final PlayerMapper playerMapper;
+
+    public PlayerService(PlayerRepository playerRepository, PlayerMapper playerMapper) {
         this.playerRepository = playerRepository;
+        this.playerMapper = playerMapper;
     }
 
     public List<Player> getAllPlayers() {
         log.info("Invoking getAllPlayers()");
         try {
             return playerRepository.findAll().stream()
-                    .map(player -> new Player(
-                            player.getIdentifier(),
-                            player.getFirstName(),
-                            player.getLastName(),
-                            player.getBirthDate(),
-                            new Rank(player.getRank(), player.getPoints())
-                    ))
-                    .sorted(Comparator.comparing(player -> player.rank().position()))
+                    .map(playerMapper::playerEntityToPlayer)
+                    .sorted(Comparator.comparing(player -> player.info().rank().position()))
                     .collect(Collectors.toList());
         } catch (DataAccessException e) {
             log.error("Could not retrieve players", e);
@@ -57,13 +54,7 @@ public class PlayerService {
                 log.warn("Could not find player with identifier={}", identifier);
                 throw new PlayerNotFoundException(identifier);
             }
-            return new Player(
-                    player.get().getIdentifier(),
-                    player.get().getFirstName(),
-                    player.get().getLastName(),
-                    player.get().getBirthDate(),
-                    new Rank(player.get().getRank(), player.get().getPoints())
-            );
+            return playerMapper.playerEntityToPlayer(player.get());
         } catch (DataAccessException e) {
             log.error("Could not find player with identifier={}", identifier, e);
             throw new PlayerDataRetrievalException(e);
