@@ -108,7 +108,6 @@ public class TournamentController {
     }
 
     @Operation(summary = "Register a player to a tournament", description = "Register a player to a tournament")
-
     @PostMapping("{tournamentIdentifier}/players/{playerIdentifier}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Player is registered to the tournament",
